@@ -4,6 +4,7 @@ from data import dataloaders
 from model import build_model
 from settings import device, num_epochs, patience, learning_rate, model_path
 
+
 def train_model():
     model = build_model()
     criterion = torch.nn.CrossEntropyLoss()

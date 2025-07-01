@@ -8,6 +8,7 @@ from PIL import Image
 
 import torchvision.transforms as transforms
 
+
 def is_valid_image(img_path):
     try:
         with Image.open(img_path) as img:
@@ -16,6 +17,7 @@ def is_valid_image(img_path):
         return True
     except Exception:
         return False
+
 
 original_dataset_dir = Path("D:\\cats_vs_dogs\\PetImages")
 working_dir = Path("D:\\cats_vs_dogs\\data")
@@ -33,9 +35,12 @@ def split_and_copy():
         foundImages = len(images)
         images = [image for image in tqdm(images, desc=f"Validating '{class_path.name}' images") if
                   is_valid_image(image)]
-        print(f"Discarded {foundImages - len(images)} from the {class_path.name} set")
-        train, temp = train_test_split(images, test_size=1 - train_ratio, random_state=42)
-        val, test = train_test_split(temp, test_size=test_ratio / (test_ratio + val_ratio), random_state=42)
+        print(f"Discarded {foundImages - len(images)
+                           } from the {class_path.name} set")
+        train, temp = train_test_split(
+            images, test_size=1 - train_ratio, random_state=42)
+        val, test = train_test_split(
+            temp, test_size=test_ratio / (test_ratio + val_ratio), random_state=42)
 
         for folder, subset in zip(["train", "val", "test"], [train, val, test]):
             class_subfolder = working_dir / folder / class_path.name
@@ -67,12 +72,13 @@ val_test_transforms = transforms.Compose([
 batch_size = 128
 
 datasets = {
-    "train": ImageFolder(working_dir/ "train", transform=train_transforms),
-    "val": ImageFolder(working_dir/ "val", transform=val_test_transforms),
+    "train": ImageFolder(working_dir / "train", transform=train_transforms),
+    "val": ImageFolder(working_dir / "val", transform=val_test_transforms),
     "test": ImageFolder(working_dir/"test", transform=val_test_transforms),
 }
 
 dataloaders = {
-    phase: DataLoader(datasets[phase], batch_size=batch_size, shuffle=(phase == "train"))
+    phase: DataLoader(
+        datasets[phase], batch_size=batch_size, shuffle=(phase == "train"))
     for phase in ["train", "val", "test"]
 }

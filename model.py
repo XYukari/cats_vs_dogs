@@ -3,6 +3,7 @@ import torchvision.models as models
 from data import datasets
 from settings import device
 
+
 def build_model():
     model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
     num_classes = len(datasets["train"].classes)

@@ -1,3 +1,5 @@
+from data import datasets
+import glob
 import os
 import torch
 from flask import Flask, request, render_template
@@ -12,8 +14,6 @@ UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# 清理上传文件夹
-import glob
 
 for file_path in glob.glob(os.path.join(UPLOAD_FOLDER, '*')):
     try:
@@ -25,8 +25,8 @@ model = build_model()
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()
 
-from data import datasets
 class_names = datasets["test"].classes
+
 
 def predict_image(img_path):
     image = Image.open(img_path).convert("RGB")
@@ -39,6 +39,7 @@ def predict_image(img_path):
         predicted_class = class_names[pred.item()]
         confidence = conf.item()
         return predicted_class, confidence
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -61,6 +62,7 @@ def index():
                 })
 
     return render_template("index.html", results=results)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

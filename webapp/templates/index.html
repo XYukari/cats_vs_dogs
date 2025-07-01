@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>猫狗分类器</title>
@@ -51,7 +52,7 @@
         .result-item {
             background-color: white;
             border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             padding: 10px;
             text-align: center;
             width: 240px;
@@ -74,6 +75,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>🐱🐶 猫狗识别小工具</h1>
 
@@ -83,15 +85,16 @@
     </form>
 
     {% if results %}
-        <div class="result-list">
-            {% for item in results %}
-                <div class="result-item">
-                    <img src="{{ item.url }}" alt="{{ item.filename }}">
-                    <div class="label">{{ item.label }}</div>
-                    <div class="confidence">置信度：{{ item.confidence }}</div>
-                </div>
-            {% endfor %}
+    <div class="result-list">
+        {% for item in results %}
+        <div class="result-item">
+            <img src="{{ item.url }}" alt="{{ item.filename }}">
+            <div class="label">{{ item.label }}</div>
+            <div class="confidence">置信度：{{ item.confidence }}</div>
         </div>
+        {% endfor %}
+    </div>
     {% endif %}
 </body>
+
 </html>

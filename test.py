@@ -7,6 +7,7 @@ from data import datasets, dataloaders
 from model import build_model
 from settings import device, model_path
 
+
 def test_model():
     model = build_model()
     model.load_state_dict(torch.load(model_path, map_location=device))
