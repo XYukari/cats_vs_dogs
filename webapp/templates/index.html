@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>猫狗分类器</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        input[type="file"] {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .result-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .result-item {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 10px;
+            text-align: center;
+            width: 240px;
+        }
+
+        .result-item img {
+            max-width: 100%;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .confidence {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐱🐶 猫狗识别小工具</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" multiple required><br>
+        <input type="submit" value="上传图片进行预测">
+    </form>
+
+    {% if results %}
+        <div class="result-list">
+            {% for item in results %}
+                <div class="result-item">
+                    <img src="{{ item.url }}" alt="{{ item.filename }}">
+                    <div class="label">{{ item.label }}</div>
+                    <div class="confidence">置信度：{{ item.confidence }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</body>
+</html>
