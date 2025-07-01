@@ -15,7 +15,7 @@ def is_valid_image(img_path):
             img.verify()
 
         return True
-    except Exception:
+    except (IOError, SyntaxError):
         return False
 
 
@@ -32,10 +32,10 @@ def split_and_copy():
             continue
 
         images = list(class_path.iterdir())
-        foundImages = len(images)
+        found_images = len(images)
         images = [image for image in tqdm(images, desc=f"Validating '{class_path.name}' images") if
                   is_valid_image(image)]
-        print(f"Discarded {foundImages - len(images)
+        print(f"Discarded {found_images - len(images)
                            } from the {class_path.name} set")
         train, temp = train_test_split(
             images, test_size=1 - train_ratio, random_state=42)
@@ -72,8 +72,8 @@ val_test_transforms = transforms.Compose([
 batch_size = 128
 
 datasets = {
-    "train": ImageFolder(working_dir / "train", transform=train_transforms),
-    "val": ImageFolder(working_dir / "val", transform=val_test_transforms),
+    "train": ImageFolder(working_dir/"train", transform=train_transforms),
+    "val": ImageFolder(working_dir/"val", transform=val_test_transforms),
     "test": ImageFolder(working_dir/"test", transform=val_test_transforms),
 }
 
