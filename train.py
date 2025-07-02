@@ -1,9 +1,9 @@
 import torch
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 from data import dataloaders
 from model import build_model
 from settings import device, num_epochs, patience, learning_rate, model_path
-
 
 def train_model():
     model = build_model()
@@ -12,6 +12,9 @@ def train_model():
 
     best_val_loss = float("inf")
     early_stop_counter = 0
+
+    train_losses = []
+    val_losses = []
 
     for epoch in range(num_epochs):
         print(f"Epoch {epoch + 1}/{num_epochs}")
@@ -30,6 +33,8 @@ def train_model():
         avg_train_loss = total_train_loss / len(dataloaders["train"])
         print(f"  Train Loss: {avg_train_loss:.4f}")
 
+        train_losses.append(avg_train_loss)
+
         model.eval()
         total_val_loss = 0
         with torch.no_grad():
@@ -41,6 +46,8 @@ def train_model():
 
         avg_val_loss = total_val_loss / len(dataloaders["val"])
         print(f"  Val Loss: {avg_val_loss:.4f}")
+
+        val_losses.append(avg_val_loss)
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
@@ -54,3 +61,13 @@ def train_model():
                 break
 
     print("Training Complete!")
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(1, num_epochs + 1), train_losses, label="Train Loss", color='blue')
+    plt.plot(range(1, num_epochs + 1), val_losses, label="Validation Loss", color='red')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Train and Validation Loss Over Epochs')
+    plt.legend()
+    plt.grid(True)
+    plt.show()

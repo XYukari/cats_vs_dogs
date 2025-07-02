@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: system-ui, sans-serif;
-            max-width: 800px;
+            max-width: 1400px;
             margin: 40px auto;
             padding: 0 20px;
             background-color: #f9f9f9;
@@ -24,7 +24,7 @@
         }
 
         input[type="file"] {
-            margin-left: 20px;
+            margin-left: 100px;
             margin-bottom: 10px;
         }
 
@@ -73,11 +73,21 @@
             color: #666;
             font-size: 14px;
         }
+
+        .banner {
+            background-color: rgba(96, 181, 21, 0.82);
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            width: 100%;
+            margin: 20px 0;
+        }
     </style>
 </head>
 
-<body>
-    <h1>🐱🐶 猫狗识别小工具</h1>
+<!--    <div class="banner">-->
+        <h1>🐱🐶 猫狗识别小工具</h1>
+<!--    </div>-->
 
     <form method="post" enctype="multipart/form-data">
         <input type="file" name="file" accept="image/*" multiple required><br>
@@ -88,9 +98,13 @@
     <div class="result-list">
         {% for item in results %}
         <div class="result-item">
+            {% if item.error %}
+            <div class="error">{{ item.error }}</div>
+            {% else %}
             <img src="{{ item.url }}" alt="{{ item.filename }}">
             <div class="label">{{ item.label }}</div>
             <div class="confidence">置信度：{{ item.confidence }}</div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>

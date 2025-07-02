@@ -1,19 +1,16 @@
-from data import datasets
 import glob
 import os
-import torch
-from flask import Flask, request, render_template
+
+from PIL import Image, UnidentifiedImageError
+from flask import Flask, request, render_template, url_for
 from werkzeug.utils import secure_filename
-from model import build_model
-from settings import device, model_path
-from data import val_test_transforms
-from PIL import Image
+
+from classifier import ImageClassifier
 
 app = Flask(__name__)
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 for file_path in glob.glob(os.path.join(UPLOAD_FOLDER, '*')):
     try:
@@ -21,48 +18,52 @@ for file_path in glob.glob(os.path.join(UPLOAD_FOLDER, '*')):
     except Exception as e:
         print(f"删除失败: {file_path} - {e}")
 
-model = build_model()
-model.load_state_dict(torch.load(model_path, map_location=device))
-model.eval()
+classifier = ImageClassifier(model_path="best_model.pth")
 
-class_names = datasets["test"].classes
+def resize_img(image, size=(224, 224)):
+    from PIL import Image
+    return image.resize(size, Image.Resampling.LANCZOS)
 
-
-def predict_image(img_path):
-    image = Image.open(img_path).convert("RGB")
-    image = val_test_transforms(image).unsqueeze(0).to(device)
-
-    with torch.no_grad():
-        outputs = model(image)
-        probs = torch.nn.functional.softmax(outputs, dim=1)
-        conf, pred = torch.max(probs, 1)
-        predicted_class = class_names[pred.item()]
-        confidence = conf.item()
-        return predicted_class, confidence
-
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def index():
-    results = []
+    if request.method == "POST":
+        files = request.files.getlist("file")
+        results = []
 
-    if request.method == 'POST':
-        files = request.files.getlist('file')
         for file in files:
-            if file and file.filename:
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
+            if file:
+                try:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-                label, prob = predict_image(filepath)
-                results.append({
-                    "filename": filename,
-                    "label": label,
-                    "confidence": f"{prob * 100:.2f}%",
-                    "url": f"/static/uploads/{filename}"
-                })
+                    image = Image.open(file)
+                    resized_img = resize_img(image)
+                    resized_img.save(file_path)
 
-    return render_template("index.html", results=results)
+                    with open(file_path, "rb") as img_file:
+                        image_data = img_file.read()
 
+                    label, confidence = classifier.predict(image_data)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+                    results.append({
+                        'filename': filename,
+                        'url': url_for('static', filename='uploads/' + filename),
+                        'label': label,
+                        'confidence': f"{confidence * 100:.2f}%"
+                    })
+
+                except UnidentifiedImageError:
+                    results.append({
+                        'filename': filename,
+                        'error': "无法识别的图像文件"
+                    })
+
+                except Exception as e:
+                    results.append({
+                        'filename': filename,
+                        'error': f"处理失败: {str(e)}"
+                    })
+
+        return render_template("index.html", results=results)
+
+    return render_template("index.html")

@@ -5,6 +5,7 @@ from pathlib import Path
 from sklearn.model_selection import train_test_split
 
 from PIL import Image
+from settings import batch_size
 
 import torchvision.transforms as transforms
 
@@ -68,8 +69,6 @@ val_test_transforms = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-
-batch_size = 128
 
 datasets = {
     "train": ImageFolder(working_dir/"train", transform=train_transforms),
